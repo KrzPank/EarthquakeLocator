@@ -1,27 +1,9 @@
 package com.example.earthquakelocator.util
 
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
-fun validateDate(s: String): String? {
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
-    dateFormat.isLenient = false
-    return try {
-        dateFormat.parse(s)
-        null  // OK
-    } catch (e: Exception) {
-        "Niepoprawna data"
-    }
-}
-
-fun validateDouble(s: String, field: String): String? {
-    val value = s.toDoubleOrNull()
-    return if (value == null || value < 0) {
-        "$field musi być liczbą > 0"
-    } else {
-        null
-    }
-}
 
 fun isStartBeforeOrEqualEnd(startDate: String, endDate: String): Boolean {
     val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.US)
@@ -35,4 +17,10 @@ fun isStartBeforeOrEqualEnd(startDate: String, endDate: String): Boolean {
     } catch (e: Exception) {
         false
     }
+}
+
+fun Properties.timeFormatted(): String {
+    val date = Date(this.time)
+    val format = SimpleDateFormat("HH:mm dd-MM-yyyy", Locale.getDefault())
+    return format.format(date)
 }

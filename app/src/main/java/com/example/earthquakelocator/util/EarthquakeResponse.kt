@@ -1,4 +1,4 @@
-package com.example.earthquakelocator.model
+package com.example.earthquakelocator.util
 
 data class Geometry(
     val coordinates: List<Double>

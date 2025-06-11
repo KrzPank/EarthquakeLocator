@@ -1,6 +1,6 @@
 package com.example.earthquakelocator.network
 
-import com.example.earthquakelocator.model.EarthquakeResponse
+import com.example.earthquakelocator.util.EarthquakeResponse
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
@@ -32,5 +32,12 @@ interface EarthquakeService {
         @Query("latitude") lat: Double,
         @Query("longitude") lon: Double,
         @Query("maxradiuskm") radius: Double
+    ): EarthquakeResponse
+
+    @GET("query")
+    suspend fun getLatestEarthquake(
+        @Query("format") format: String = "geojson",
+        @Query("orderby") orderBy: String = "time",
+        @Query("limit") limit: Int = 1
     ): EarthquakeResponse
 }
