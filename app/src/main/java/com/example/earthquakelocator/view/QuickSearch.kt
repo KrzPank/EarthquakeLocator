@@ -1,7 +1,10 @@
 package com.example.earthquakelocator.view
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,11 +40,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.earthquakelocator.util.EarthquakeResponse
+import com.example.earthquakelocator.util.Feature
 import com.example.earthquakelocator.util.timeFormatted
 import com.example.earthquakelocator.viewModel.EarthquakeViewModel
+import com.example.earthquakelocator.util.GeoJsonLinkGenerator
+import com.example.earthquakelocator.util.Geometry
+import com.example.earthquakelocator.util.Properties
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +62,8 @@ fun QuickSearchScreen(
 ) {
     val context = LocalContext.current
     var location by remember { mutableStateOf("") }
+    var selectedQuake by remember { mutableStateOf<Feature?>(null) }
+
     var locationErr by remember { mutableStateOf<String?>(null) }
 
     val isLoading = viewModel.isLoading
@@ -132,16 +144,40 @@ fun QuickSearchScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(Modifier.height(8.dp))
-                results.forEach { quake ->
+                results.forEachIndexed { index, quake ->
                     val props = quake.properties
+                    val isSelected = selectedQuake == quake
+
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clickable { selectedQuake = if (isSelected) null else quake },
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        colors = if (isSelected)
+                            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        else
+                            CardDefaults.cardColors()
                     ) {
                         Column(Modifier.padding(12.dp)) {
                             Text("Magnituda: ${props.mag}")
                             Text("Miejsce: ${props.place}")
                             Text("Data: ${props.timeFormatted()}")
+
+                            if (isSelected) {
+                                Spacer(Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
+                                        val url = GeoJsonLinkGenerator.generateLink(
+                                            EarthquakeResponse(listOf(quake))
+                                        )
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                        context.startActivity(intent)
+                                    }
+                                ) {
+                                    Text("Pokaż na mapie")
+                                }
+                            }
                         }
                     }
                 }

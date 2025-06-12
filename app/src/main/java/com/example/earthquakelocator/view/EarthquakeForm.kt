@@ -110,7 +110,7 @@ fun EarthquakeFormScreen(
             isValid = false
         }
         val rad = radius.toDoubleOrNull()
-        if (rad == null || rad < 0) {
+        if (rad == null || rad < 0 || rad > 13500) {
             radiusErr = "Nieprawidłowy promień"
             isValid = false
         }
